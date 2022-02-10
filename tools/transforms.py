@@ -428,6 +428,8 @@ class PixelSpeckleNoise(StillTransform):
         return (img - img_min) / np.abs(img_max - img_min) * (maximum - minimum) + minimum
 
     def _transform(self, img):
+        img = np.float32(img)
+        normalized_img = self.normalize(img)
         normalized_img = self.normalize(img)
         upper_band = (12 * self.var) ** .5
         np.random.seed(self.seed)
