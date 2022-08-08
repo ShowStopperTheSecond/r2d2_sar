@@ -471,9 +471,8 @@ class DoubleDescNghSampler2(nn.Module):
         b2 = b1
         xy2 = (aflow[b1, :, y1, x1] + 0.5).long().t()
         mask = (0 <= xy2[0]) * (0 <= xy2[1]) * (xy2[0] < W) * (xy2[1] < H)
-        mask = mask
         mask = mask.view(shape)
-
+        mask = mask.repeat(2, 1)
         def clamp(xy):
             torch.clamp(xy[0], 0, W - 1, out=xy[0])
             torch.clamp(xy[1], 0, H - 1, out=xy[1])
