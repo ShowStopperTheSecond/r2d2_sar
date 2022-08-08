@@ -58,7 +58,6 @@ default_dataloader = """PairLoader(CatPairDataset(`data`),
 default_sampler = """DoubleDescNghSampler2(ngh=7, subq=-8, subd=1, pos_d=3, neg_d=5, border=16,
                             subd_neg=-8,maxpool_pos=True, desc_dim=128)"""
 
-75924
 
 
 default_loss = """MultiLoss(
