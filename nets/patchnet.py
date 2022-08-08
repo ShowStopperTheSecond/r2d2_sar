@@ -138,6 +138,29 @@ class Quad_L2Net_ConfCFS (Quad_L2Net):
         return self.normalize(x, ureliability, urepeatability)
 
 
+
+class Custom_Quad_L2Net_ConfCFS (Quad_L2Net):
+    """ Same than Quad_L2Net, with 2 confidence maps for repeatability and reliability.
+    """
+    def __init__(self, **kw ):
+        Quad_L2Net.__init__(self, dim=256, **kw)
+        # reliability classifier
+        self.clf = nn.Conv2d(self.out_dim, 2, kernel_size=1)
+        # repeatability classifier: for some reasons it's a softplus, not a softmax!
+        # Why? I guess it's a mistake that was left unnoticed in the code for a long time...
+        self.sal = nn.Conv2d(self.out_dim, 1, kernel_size=1)
+
+    def forward_one(self, x):
+        assert self.ops, "You need to add convolutions first"
+        for op in self.ops:
+            x = op(x)
+        # compute the confidence maps
+        ureliability = self.clf(x**2)
+        urepeatability = self.sal(x**2)
+        return self.normalize(x, ureliability, urepeatability)
+
+
+
 class Fast_Quad_L2Net (PatchNet):
     """ Faster version of Quad l2 net, replacing one dilated conv with one pooling to diminish image resolution thus increase inference time
     Dilation  factors and pooling:

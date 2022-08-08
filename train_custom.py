@@ -14,7 +14,8 @@ from  datasets import *
 
 
 
-default_net = "Quad_L2Net_ConfCFS()"
+# default_net = "Quad_L2Net_ConfCFS()"
+default_net = "Custom_Quad_L2Net_ConfCFS()"
 
 toy_db_debug = """SyntheticPairDataset(
     ImgFolder('imgs'), 
@@ -51,8 +52,14 @@ default_dataloader = """PairLoader(CatPairDataset(`data`),
     distort = 'ColorJitter(0.2,0.2,0.2,0.1)',
     crop    = 'RandomCrop(192)')"""
 
-default_sampler = """NghSampler2(ngh=7, subq=-8, subd=1, pos_d=3, neg_d=5, border=16,
-                            subd_neg=-8,maxpool_pos=True)"""
+# default_sampler = """NghSampler2(ngh=7, subq=-8, subd=1, pos_d=3, neg_d=5, border=16,
+#                             subd_neg=-8,maxpool_pos=True)"""
+
+default_sampler = """DoubleDescNghSampler2(ngh=7, subq=-8, subd=1, pos_d=3, neg_d=5, border=16,
+                            subd_neg=-8,maxpool_pos=True, desc_dim=128)"""
+
+75924
+
 
 default_loss = """MultiLoss(
         1, ReliabilityLoss(`sampler`, base=0.5, nq=20),
@@ -60,16 +67,13 @@ default_loss = """MultiLoss(
         1, PeakyLoss(N=`N`))"""
 
 
-# data_sources = dict(
+data_sources = dict(
 #     D = toy_db_debug,
 #     W = db_web_images,
-#     A = db_aachen_images,
+    A = db_aachen_images,
 #     F = db_aachen_flow,
 #     S = db_aachen_style_transfer,
-#     )
-
-data_sources = dict(
-    X = db_sar_images
+#     X = db_sar_images
     )
 
 
@@ -101,8 +105,8 @@ def load_network(model_fn):
 
 
 save_path = "./trained_models"
-gpu = 0
-train_data = "X"
+gpu = -1
+train_data = "A"
 data_loader = default_dataloader
 threads = 1
 batch_size = 8
@@ -131,8 +135,8 @@ for a in loader:
     break
 
 
-net = load_network(network_path)
-
+# net = load_network(network_path)
+net = Custom_Quad_L2Net_ConfCFS()
 
 # create losses
 loss = loss.replace('`sampler`',sampler).replace('`N`',str(patch_size))
